@@ -1,2 +1,7 @@
+from pydrive2.auth import GoogleAuth
+
+
 def _authenticate():
-    raise NotImplementedError
+    gauth = GoogleAuth()
+    gauth.LocalWebserverAuth()
+    return gauth
