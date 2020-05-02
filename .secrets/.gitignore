@@ -1,0 +1,5 @@
+# put credentials for Drive API here
+# - my_client_secrets.json: downloaded from GCP console
+# - saved_credentials.json: saved by PyDrive2 (and refreshed by settings.yaml)
+*
+!.gitignore
