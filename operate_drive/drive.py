@@ -20,3 +20,12 @@ class DiyGoogleDrive:
         metadata = {"id": file_id}
         gdrive_file = self._drive.CreateFile(metadata)
         return DiyGDriveFile(gdrive_file)
+
+    def copy_file(self, source_file, dest_title):
+        access_to_files = self._drive.auth.service.files()
+        metadata = {"title": dest_title}
+        request_to_copy = access_to_files.copy(
+            fileId=source_file.id, body=metadata
+        )
+        copied_file_info_dict = request_to_copy.execute()
+        return self.fetch_file_by_id(copied_file_info_dict["id"])

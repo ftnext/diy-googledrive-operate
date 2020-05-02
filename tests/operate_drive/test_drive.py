@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+from pydrive2.drive import GoogleDrive
+
 from operate_drive import drive as d
 
 
@@ -25,15 +27,38 @@ class CreateGdriveTestCase(TestCase):
 class DiyGoogleDriveFetchFileByIdTestCase(TestCase):
     @patch("operate_drive.drive.DiyGDriveFile")
     def test_should_fetch(self, mock_diy_gdrive_file):
-        from pydrive2.drive import GoogleDrive
-
         file_id = MagicMock(spec=str)
         gdrive = MagicMock(spec=GoogleDrive)
-        my_drive = d.DiyGoogleDrive(gdrive)
+        a_drive = d.DiyGoogleDrive(gdrive)
         gdrive_file = gdrive.CreateFile.return_value
 
-        actual = my_drive.fetch_file_by_id(file_id)
+        actual = a_drive.fetch_file_by_id(file_id)
 
         gdrive.CreateFile.assert_called_once_with({"id": file_id})
         mock_diy_gdrive_file.assert_called_once_with(gdrive_file)
         self.assertEqual(actual, mock_diy_gdrive_file.return_value)
+
+
+class DiyGoogleDriveCopyFileTestCase(TestCase):
+    @patch("operate_drive.drive.DiyGoogleDrive.fetch_file_by_id")
+    def test_should_copy(self, fetch_file_by_id):
+        from operate_drive.file import DiyGDriveFile
+
+        source_file = MagicMock(spec=DiyGDriveFile)
+        dest_title = MagicMock(spec=str)
+        # mockにauthプロパティを持たせるためにインスタンス化して渡している
+        gdrive = MagicMock(spec=GoogleDrive())
+        a_drive = d.DiyGoogleDrive(gdrive)
+        access_to_files = gdrive.auth.service.files.return_value
+        request_to_copy = access_to_files.copy.return_value
+        copied_file_info_dict = request_to_copy.execute.return_value
+
+        actual = a_drive.copy_file(source_file, dest_title)
+
+        gdrive.auth.service.files.assert_called_once_with()
+        access_to_files.copy.assert_called_once_with(
+            fileId=source_file.id, body={"title": dest_title}
+        )
+        request_to_copy.execute.assert_called_once_with()
+        fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
+        self.assertEqual(actual, fetch_file_by_id.return_value)

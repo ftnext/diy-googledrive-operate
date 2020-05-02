@@ -6,6 +6,16 @@ from pydrive2.files import GoogleDriveFile
 from operate_drive import file as f
 
 
+class DiyGDriveFilePropertiesTestCase(TestCase):
+    def test_properties(self):
+        gdrive_file = MagicMock(spec=GoogleDriveFile)
+        a_file = f.DiyGDriveFile(gdrive_file)
+
+        actual = a_file.id
+
+        self.assertEqual(actual, gdrive_file["id"])
+
+
 class DiyGDriveFileFetchTitleTestCase(TestCase):
     def test_should_fetch(self):
         gdrive_file = MagicMock(spec=GoogleDriveFile)
