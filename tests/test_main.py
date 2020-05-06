@@ -9,29 +9,19 @@ import main as m
 class MainTestCase(TestCase):
     @patch("builtins.print")
     @patch("main.display_information")
-    @patch("main.build_dest_title")
-    @patch("main.create_diy_gdrive")
+    @patch("main.cp_in_drive")
     @patch("main.parse_args")
     def test_should_parse_args(
-        self,
-        parse_args,
-        create_diy_gdrive,
-        build_dest_title,
-        display_information,
-        mock_print,
+        self, parse_args, cp_in_drive, display_information, mock_print,
     ):
         args = parse_args.return_value
-        drive = create_diy_gdrive.return_value
-        dest_title = build_dest_title.return_value
-        dest_file = drive.copy_file.return_value
+        dest_file = cp_in_drive.return_value
         info = display_information.return_value
 
         m.main()
 
         parse_args.assert_called_once_with()
-        create_diy_gdrive.assert_called_once_with()
-        build_dest_title.assert_called_once_with(drive, args.source_id)
-        drive.copy_file.assert_called_once_with(args.source_id, dest_title)
+        cp_in_drive.assert_called_once_with(args.source_id)
         display_information.assert_called_once_with(dest_file)
         mock_print.assert_called_once_with(info)
 
@@ -47,6 +37,22 @@ class ParseArgsTestCase(TestCase):
         parser.add_argument.assert_called_once_with("source_id")
         parser.parse_args.assert_called_once_with()
         self.assertEqual(actual, parser.parse_args.return_value)
+
+
+class CpInDriveTestCase(TestCase):
+    @patch("main.build_dest_title")
+    @patch("main.create_diy_gdrive")
+    def test_should_copy(self, create_diy_gdrive, build_dest_title):
+        source_id = MagicMock(spec=str)
+        drive = create_diy_gdrive.return_value
+        dest_title = build_dest_title.return_value
+
+        actual = m.cp_in_drive(source_id)
+
+        create_diy_gdrive.assert_called_once_with()
+        build_dest_title.assert_called_once_with(drive, source_id)
+        drive.copy_file.assert_called_once_with(source_id, dest_title)
+        self.assertEqual(actual, drive.copy_file.return_value)
 
 
 class BuildDestTitleTestCase(TestCase):
