@@ -42,9 +42,7 @@ class DiyGoogleDriveFetchFileByIdTestCase(TestCase):
 class DiyGoogleDriveCopyFileTestCase(TestCase):
     @patch("operate_drive.drive.DiyGoogleDrive.fetch_file_by_id")
     def test_should_copy(self, fetch_file_by_id):
-        from operate_drive.file import DiyGDriveFile
-
-        source_file = MagicMock(spec=DiyGDriveFile)
+        source_id = MagicMock(spec=str)
         dest_title = MagicMock(spec=str)
         # mockにauthプロパティを持たせるためにインスタンス化して渡している
         gdrive = MagicMock(spec=GoogleDrive())
@@ -53,11 +51,11 @@ class DiyGoogleDriveCopyFileTestCase(TestCase):
         request_to_copy = access_to_files.copy.return_value
         copied_file_info_dict = request_to_copy.execute.return_value
 
-        actual = a_drive.copy_file(source_file, dest_title)
+        actual = a_drive.copy_file(source_id, dest_title)
 
         gdrive.auth.service.files.assert_called_once_with()
         access_to_files.copy.assert_called_once_with(
-            fileId=source_file.id, body={"title": dest_title}
+            fileId=source_id, body={"title": dest_title}
         )
         request_to_copy.execute.assert_called_once_with()
         fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
