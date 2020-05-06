@@ -6,12 +6,6 @@ from operate_drive import auth
 from operate_drive.file import DiyGDriveFile
 
 
-def create_diy_gdrive():
-    gauth = auth._authenticate()
-    gdrive = GoogleDrive(gauth)
-    return DiyGoogleDrive(gdrive)
-
-
 @dataclass
 class DiyGoogleDrive:
     _drive: GoogleDrive
@@ -27,3 +21,30 @@ class DiyGoogleDrive:
         request_to_copy = access_to_files.copy(fileId=source_id, body=metadata)
         copied_file_info_dict = request_to_copy.execute()
         return self.fetch_file_by_id(copied_file_info_dict["id"])
+
+
+def create_diy_gdrive() -> DiyGoogleDrive:
+    """Return DiyGDriveFile (wrapper of pydrive2.drive.GoogleDrive)
+
+    Example:
+
+        >>> drive = create_diy_gdrive()
+
+        >>> # return DiyGDriveFile
+        >>> file = drive.fetch_file_by_id("file_id")
+
+        >>> # copy a specified file as DiyGDriveFile
+        >>> drive.copy_file("source_id", "dest_title")
+
+    DiyGDriveFile is a wrapper of pydrive2.files.GoogleDriveFile
+
+        >>> # fetch specified metadata from Drive API and return
+        >>> file.fetch_title()
+
+    supported metadata as `fetch_xxx` are title and alternateLink currently.
+    ref: https://developers.google.com/drive/api/v2/reference/files
+
+    """
+    gauth = auth._authenticate()
+    gdrive = GoogleDrive(gauth)
+    return DiyGoogleDrive(gdrive)
