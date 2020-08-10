@@ -55,7 +55,9 @@ class DiyGoogleDriveCopyFileTestCase(TestCase):
 
         gdrive.auth.service.files.assert_called_once_with()
         access_to_files.copy.assert_called_once_with(
-            fileId=source_id, body={"title": dest_title}
+            fileId=source_id,
+            body={"title": dest_title},
+            supportsAllDrives=True,
         )
         request_to_copy.execute.assert_called_once_with()
         fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
