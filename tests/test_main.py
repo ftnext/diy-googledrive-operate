@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import call, MagicMock, patch
 
 from operate_drive.drive import DiyGoogleDrive
 
@@ -21,7 +21,7 @@ class MainTestCase(TestCase):
         m.main()
 
         parse_args.assert_called_once_with()
-        cp_in_drive.assert_called_once_with(args.source_id)
+        cp_in_drive.assert_called_once_with(args.source_id, args.dest_title)
         display_information.assert_called_once_with(dest_file)
         mock_print.assert_called_once_with(info)
 
@@ -34,7 +34,9 @@ class ParseArgsTestCase(TestCase):
         actual = m.parse_args()
 
         mock_argument_parser.assert_called_once_with()
-        parser.add_argument.assert_called_once_with("source_id")
+        parser.add_argument.assert_has_calls(
+            [call("source_id"), call("--dest_title")]
+        )
         parser.parse_args.assert_called_once_with()
         self.assertEqual(actual, parser.parse_args.return_value)
 

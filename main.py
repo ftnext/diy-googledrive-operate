@@ -8,7 +8,7 @@ from operate_drive.file import DiyGDriveFile
 def main():
     args = parse_args()
 
-    dest_file = cp_in_drive(args.source_id)
+    dest_file = cp_in_drive(args.source_id, args.dest_title)
 
     info = display_information(dest_file)
     print(info)
@@ -17,6 +17,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("source_id")
+    parser.add_argument("--dest_title")
     return parser.parse_args()
 
 
