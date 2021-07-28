@@ -40,23 +40,25 @@ class DiyGoogleDriveFetchFileByIdTestCase(TestCase):
 
 
 class DiyGoogleDriveCopyFileTestCase(TestCase):
+    def setUp(self):
+        self.source_id = MagicMock(spec=str)
+        self.dest_title = MagicMock(spec=str)
+        # mockにauthプロパティを持たせるためにインスタンス化して渡している
+        self.gdrive = MagicMock(spec=GoogleDrive())
+        self.a_drive = d.DiyGoogleDrive(self.gdrive)
+
     @patch("operate_drive.drive.DiyGoogleDrive.fetch_file_by_id")
     def test_should_copy(self, fetch_file_by_id):
-        source_id = MagicMock(spec=str)
-        dest_title = MagicMock(spec=str)
-        # mockにauthプロパティを持たせるためにインスタンス化して渡している
-        gdrive = MagicMock(spec=GoogleDrive())
-        a_drive = d.DiyGoogleDrive(gdrive)
-        access_to_files = gdrive.auth.service.files.return_value
+        access_to_files = self.gdrive.auth.service.files.return_value
         request_to_copy = access_to_files.copy.return_value
         copied_file_info_dict = request_to_copy.execute.return_value
 
-        actual = a_drive.copy_file(source_id, dest_title)
+        actual = self.a_drive.copy_file(self.source_id, self.dest_title)
 
-        gdrive.auth.service.files.assert_called_once_with()
+        self.gdrive.auth.service.files.assert_called_once_with()
         access_to_files.copy.assert_called_once_with(
-            fileId=source_id,
-            body={"title": dest_title},
+            fileId=self.source_id,
+            body={"title": self.dest_title},
             supportsAllDrives=True,
         )
         request_to_copy.execute.assert_called_once_with()
