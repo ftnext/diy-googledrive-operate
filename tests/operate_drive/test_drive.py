@@ -1,3 +1,4 @@
+from typing import Callable
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
@@ -39,6 +40,7 @@ class DiyGoogleDriveFetchFileByIdTestCase(TestCase):
         self.assertEqual(actual, mock_diy_gdrive_file.return_value)
 
 
+@patch("operate_drive.drive.DiyGoogleDrive.fetch_file_by_id")
 class DiyGoogleDriveCopyFileTestCase(TestCase):
     def setUp(self):
         self.source_id = MagicMock(spec=str)
@@ -47,7 +49,6 @@ class DiyGoogleDriveCopyFileTestCase(TestCase):
         self.gdrive = MagicMock(spec=GoogleDrive())
         self.a_drive = d.DiyGoogleDrive(self.gdrive)
 
-    @patch("operate_drive.drive.DiyGoogleDrive.fetch_file_by_id")
     def test_should_copy(self, fetch_file_by_id):
         access_to_files = self.gdrive.auth.service.files.return_value
         request_to_copy = access_to_files.copy.return_value
@@ -56,6 +57,44 @@ class DiyGoogleDriveCopyFileTestCase(TestCase):
         actual = self.a_drive.copy_file(self.source_id, self.dest_title)
 
         self.gdrive.auth.service.files.assert_called_once_with()
+        access_to_files.copy.assert_called_once_with(
+            fileId=self.source_id,
+            body={"title": self.dest_title},
+            supportsAllDrives=True,
+        )
+        request_to_copy.execute.assert_called_once_with()
+        fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
+        self.assertEqual(actual, fetch_file_by_id.return_value)
+
+    def test_when_auth_service_is_none(self, fetch_file_by_id):
+        self.gdrive.auth.service = None
+        call_count_get_about = 0
+
+        # Noneだったservice属性をGetAboutメソッドが書き換える副作用をモックで表現した
+        def mocked_get_about(files_mock):
+            from googleapiclient.discovery import Resource
+
+            def wrapper():
+                nonlocal call_count_get_about
+                m = MagicMock(spec=Resource)
+                m.files = files_mock
+                self.gdrive.auth.service = m
+                call_count_get_about += 1
+
+            return wrapper
+
+        files_mock = MagicMock(spec=Callable)
+        access_to_files = files_mock.return_value
+        self.gdrive.GetAbout = mocked_get_about(files_mock)
+
+        request_to_copy = access_to_files.copy.return_value
+        copied_file_info_dict = request_to_copy.execute.return_value
+
+        actual = self.a_drive.copy_file(self.source_id, self.dest_title)
+
+        # GetAbout.assert_called_once_with() 相当の検証
+        self.assertEqual(call_count_get_about, 1)
+        files_mock.assert_called_once_with()
         access_to_files.copy.assert_called_once_with(
             fileId=self.source_id,
             body={"title": self.dest_title},
