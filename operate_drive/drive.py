@@ -16,6 +16,9 @@ class DiyGoogleDrive:
         return DiyGDriveFile(gdrive_file)
 
     def copy_file(self, source_id: str, dest_title: str) -> DiyGDriveFile:
+        if self._drive.auth.service is None:
+            self._drive.GetAbout()  # Workaround to set auth (Issue #6)
+
         access_to_files = self._drive.auth.service.files()
         metadata = {"title": dest_title}
         request_to_copy = access_to_files.copy(

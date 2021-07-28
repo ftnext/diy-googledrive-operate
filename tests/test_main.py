@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import call, MagicMock, patch
 
 from operate_drive.drive import DiyGoogleDrive
 
@@ -21,7 +21,7 @@ class MainTestCase(TestCase):
         m.main()
 
         parse_args.assert_called_once_with()
-        cp_in_drive.assert_called_once_with(args.source_id)
+        cp_in_drive.assert_called_once_with(args.source_id, args.dest_title)
         display_information.assert_called_once_with(dest_file)
         mock_print.assert_called_once_with(info)
 
@@ -34,7 +34,9 @@ class ParseArgsTestCase(TestCase):
         actual = m.parse_args()
 
         mock_argument_parser.assert_called_once_with()
-        parser.add_argument.assert_called_once_with("source_id")
+        parser.add_argument.assert_has_calls(
+            [call("source_id"), call("--dest_title")]
+        )
         parser.parse_args.assert_called_once_with()
         self.assertEqual(actual, parser.parse_args.return_value)
 
@@ -53,6 +55,18 @@ class CpInDriveTestCase(TestCase):
         build_dest_title.assert_called_once_with(drive, source_id)
         drive.copy_file.assert_called_once_with(source_id, dest_title)
         self.assertEqual(actual, drive.copy_file.return_value)
+
+    @patch("main.create_diy_gdrive")
+    def test_should_copy_when_title_specified(self, create_diy_gdrive):
+        source_id = MagicMock(spec=str)
+        dest_title = MagicMock(spec=str)
+        drive = create_diy_gdrive.return_value
+
+        actual = m.cp_in_drive(source_id, dest_title)
+
+        self.assertEqual(actual, drive.copy_file.return_value)
+        create_diy_gdrive.assert_called_once_with()
+        drive.copy_file.assert_called_once_with(source_id, dest_title)
 
 
 class BuildDestTitleTestCase(TestCase):

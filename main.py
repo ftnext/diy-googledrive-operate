@@ -1,4 +1,5 @@
 import argparse
+from typing import Optional
 
 from operate_drive import create_diy_gdrive
 from operate_drive.drive import DiyGoogleDrive
@@ -8,7 +9,7 @@ from operate_drive.file import DiyGDriveFile
 def main():
     args = parse_args()
 
-    dest_file = cp_in_drive(args.source_id)
+    dest_file = cp_in_drive(args.source_id, args.dest_title)
 
     info = display_information(dest_file)
     print(info)
@@ -17,13 +18,17 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("source_id")
+    parser.add_argument("--dest_title")
     return parser.parse_args()
 
 
-def cp_in_drive(source_id: str) -> DiyGDriveFile:
+def cp_in_drive(
+    source_id: str, dest_title: Optional[str] = None
+) -> DiyGDriveFile:
     """Copy a specified file in Google Drive and return the created file."""
     drive = create_diy_gdrive()
-    dest_title = build_dest_title(drive, source_id)
+    if dest_title is None:
+        dest_title = build_dest_title(drive, source_id)
     return drive.copy_file(source_id, dest_title)
 
 
