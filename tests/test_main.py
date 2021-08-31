@@ -55,7 +55,7 @@ class CpInDriveTestCase(TestCase):
 
         create_diy_gdrive.assert_called_once_with()
         build_dest_title.assert_called_once_with(drive, source_id)
-        drive.copy_file.assert_called_once_with(source_id, dest_title)
+        drive.copy_file.assert_called_once_with(source_id, dest_title, None)
         self.assertEqual(actual, drive.copy_file.return_value)
 
     @patch("main.create_diy_gdrive")
@@ -68,7 +68,7 @@ class CpInDriveTestCase(TestCase):
 
         self.assertEqual(actual, drive.copy_file.return_value)
         create_diy_gdrive.assert_called_once_with()
-        drive.copy_file.assert_called_once_with(source_id, dest_title)
+        drive.copy_file.assert_called_once_with(source_id, dest_title, None)
 
     @patch("main.create_diy_gdrive")
     def test_should_copy_with_parent_dir_specified(self, create_diy_gdrive):
