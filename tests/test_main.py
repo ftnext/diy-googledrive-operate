@@ -21,7 +21,9 @@ class MainTestCase(TestCase):
         m.main()
 
         parse_args.assert_called_once_with()
-        cp_in_drive.assert_called_once_with(args.source_id, args.dest_title)
+        cp_in_drive.assert_called_once_with(
+            args.source_id, args.dest_title, args.parent_dir_id
+        )
         display_information.assert_called_once_with(dest_file)
         mock_print.assert_called_once_with(info)
 
