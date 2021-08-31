@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from pydrive2.drive import GoogleDrive
@@ -15,7 +17,9 @@ class DiyGoogleDrive:
         gdrive_file = self._drive.CreateFile(metadata)
         return DiyGDriveFile(gdrive_file)
 
-    def copy_file(self, source_id: str, dest_title: str) -> DiyGDriveFile:
+    def copy_file(
+        self, source_id: str, dest_title: str, parent_dir_id: str | None = None
+    ) -> DiyGDriveFile:
         if self._drive.auth.service is None:
             self._drive.GetAbout()  # Workaround to set auth (Issue #6)
 
