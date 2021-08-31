@@ -34,7 +34,9 @@ def cp_in_drive(
     drive = create_diy_gdrive()
     if dest_title is None:
         dest_title = build_dest_title(drive, source_id)
-    return drive.copy_file(source_id, dest_title)
+    if parent_dir_id is None:
+        return drive.copy_file(source_id, dest_title)
+    return drive.copy_file(source_id, dest_title, parent_dir_id)
 
 
 def build_dest_title(drive: DiyGoogleDrive, source_id: str) -> str:
