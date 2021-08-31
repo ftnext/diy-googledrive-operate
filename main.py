@@ -21,6 +21,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("source_id")
     parser.add_argument("--dest_title")
+    parser.add_argument("--parent_dir_id")
     return parser.parse_args()
 
 
