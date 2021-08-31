@@ -25,6 +25,8 @@ class DiyGoogleDrive:
 
         access_to_files = self._drive.auth.service.files()
         metadata = {"title": dest_title}
+        if parent_dir_id:
+            metadata["parents"] = [{"id": parent_dir_id}]
         request_to_copy = access_to_files.copy(
             fileId=source_id, body=metadata, supportsAllDrives=True
         )
