@@ -9,7 +9,9 @@ from operate_drive.file import DiyGDriveFile
 def main():
     args = parse_args()
 
-    dest_file = cp_in_drive(args.source_id, args.dest_title)
+    dest_file = cp_in_drive(
+        args.source_id, args.dest_title, args.parent_dir_id
+    )
 
     info = display_information(dest_file)
     print(info)
