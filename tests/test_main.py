@@ -37,7 +37,7 @@ class ParseArgsTestCase(TestCase):
 
         mock_argument_parser.assert_called_once_with()
         parser.add_argument.assert_has_calls(
-            [call("source_id"), call("--dest_title")]
+            [call("source_id"), call("--dest_title"), call("--parent_dir_id")]
         )
         parser.parse_args.assert_called_once_with()
         self.assertEqual(actual, parser.parse_args.return_value)
