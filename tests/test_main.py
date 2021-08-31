@@ -70,6 +70,21 @@ class CpInDriveTestCase(TestCase):
         create_diy_gdrive.assert_called_once_with()
         drive.copy_file.assert_called_once_with(source_id, dest_title)
 
+    @patch("main.create_diy_gdrive")
+    def test_should_copy_with_parent_dir_specified(self, create_diy_gdrive):
+        source_id = MagicMock(spec=str)
+        dest_title = MagicMock(spec=str)
+        parent_dir_id = MagicMock(spec=str)
+        drive = create_diy_gdrive.return_value
+
+        actual = m.cp_in_drive(source_id, dest_title, parent_dir_id)
+
+        self.assertEqual(actual, drive.copy_file.return_value)
+        create_diy_gdrive.assert_called_once_with()
+        drive.copy_file.assert_called_once_with(
+            source_id, dest_title, parent_dir_id
+        )
+
 
 class BuildDestTitleTestCase(TestCase):
     @patch("main.title_of_copy_dest")

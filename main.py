@@ -26,7 +26,9 @@ def parse_args():
 
 
 def cp_in_drive(
-    source_id: str, dest_title: Optional[str] = None
+    source_id: str,
+    dest_title: Optional[str] = None,
+    parent_dir_id: Optional[str] = None,
 ) -> DiyGDriveFile:
     """Copy a specified file in Google Drive and return the created file."""
     drive = create_diy_gdrive()
