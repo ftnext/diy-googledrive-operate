@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from pydrive2.drive import GoogleDrive
@@ -15,12 +17,16 @@ class DiyGoogleDrive:
         gdrive_file = self._drive.CreateFile(metadata)
         return DiyGDriveFile(gdrive_file)
 
-    def copy_file(self, source_id: str, dest_title: str) -> DiyGDriveFile:
+    def copy_file(
+        self, source_id: str, dest_title: str, parent_dir_id: str | None = None
+    ) -> DiyGDriveFile:
         if self._drive.auth.service is None:
             self._drive.GetAbout()  # Workaround to set auth (Issue #6)
 
         access_to_files = self._drive.auth.service.files()
         metadata = {"title": dest_title}
+        if parent_dir_id:
+            metadata["parents"] = [{"id": parent_dir_id}]
         request_to_copy = access_to_files.copy(
             fileId=source_id, body=metadata, supportsAllDrives=True
         )

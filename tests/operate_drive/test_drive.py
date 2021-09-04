@@ -103,3 +103,26 @@ class DiyGoogleDriveCopyFileTestCase(TestCase):
         request_to_copy.execute.assert_called_once_with()
         fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
         self.assertEqual(actual, fetch_file_by_id.return_value)
+
+    def test_should_copy_under_specified_dir(self, fetch_file_by_id):
+        access_to_files = self.gdrive.auth.service.files.return_value
+        request_to_copy = access_to_files.copy.return_value
+        copied_file_info_dict = request_to_copy.execute.return_value
+        # bool(MagicMock(spec=str)) は False のため、実の文字列を使う
+        parent_dir_id = "1K##############################d"
+        metadata = {
+            "title": self.dest_title,
+            "parents": [{"id": parent_dir_id}],
+        }
+
+        actual = self.a_drive.copy_file(
+            self.source_id, self.dest_title, parent_dir_id
+        )
+
+        self.gdrive.auth.service.files.assert_called_once_with()
+        access_to_files.copy.assert_called_once_with(
+            fileId=self.source_id, body=metadata, supportsAllDrives=True
+        )
+        request_to_copy.execute.assert_called_once_with()
+        fetch_file_by_id.assert_called_once_with(copied_file_info_dict["id"])
+        self.assertEqual(actual, fetch_file_by_id.return_value)

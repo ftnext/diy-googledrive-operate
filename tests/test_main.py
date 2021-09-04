@@ -21,7 +21,9 @@ class MainTestCase(TestCase):
         m.main()
 
         parse_args.assert_called_once_with()
-        cp_in_drive.assert_called_once_with(args.source_id, args.dest_title)
+        cp_in_drive.assert_called_once_with(
+            args.source_id, args.dest_title, args.parent_dir_id
+        )
         display_information.assert_called_once_with(dest_file)
         mock_print.assert_called_once_with(info)
 
@@ -35,7 +37,7 @@ class ParseArgsTestCase(TestCase):
 
         mock_argument_parser.assert_called_once_with()
         parser.add_argument.assert_has_calls(
-            [call("source_id"), call("--dest_title")]
+            [call("source_id"), call("--dest_title"), call("--parent_dir_id")]
         )
         parser.parse_args.assert_called_once_with()
         self.assertEqual(actual, parser.parse_args.return_value)
@@ -53,7 +55,7 @@ class CpInDriveTestCase(TestCase):
 
         create_diy_gdrive.assert_called_once_with()
         build_dest_title.assert_called_once_with(drive, source_id)
-        drive.copy_file.assert_called_once_with(source_id, dest_title)
+        drive.copy_file.assert_called_once_with(source_id, dest_title, None)
         self.assertEqual(actual, drive.copy_file.return_value)
 
     @patch("main.create_diy_gdrive")
@@ -66,7 +68,22 @@ class CpInDriveTestCase(TestCase):
 
         self.assertEqual(actual, drive.copy_file.return_value)
         create_diy_gdrive.assert_called_once_with()
-        drive.copy_file.assert_called_once_with(source_id, dest_title)
+        drive.copy_file.assert_called_once_with(source_id, dest_title, None)
+
+    @patch("main.create_diy_gdrive")
+    def test_should_copy_with_parent_dir_specified(self, create_diy_gdrive):
+        source_id = MagicMock(spec=str)
+        dest_title = MagicMock(spec=str)
+        parent_dir_id = MagicMock(spec=str)
+        drive = create_diy_gdrive.return_value
+
+        actual = m.cp_in_drive(source_id, dest_title, parent_dir_id)
+
+        self.assertEqual(actual, drive.copy_file.return_value)
+        create_diy_gdrive.assert_called_once_with()
+        drive.copy_file.assert_called_once_with(
+            source_id, dest_title, parent_dir_id
+        )
 
 
 class BuildDestTitleTestCase(TestCase):
